@@ -11,6 +11,7 @@ from app.schemas.schemas import (
     RejectOut,
     RouteOut,
     StopOut,
+    SuspensionUpdate,
     WeightOut,
 )
 from app.services.pack_engine import StopItem, pack_route
@@ -36,6 +37,21 @@ def stops(route_id: int | None = None, db: Session = Depends(get_db)):
     return db.scalars(q).all()
 
 
+@api_router.patch("/stops/{stop_id}/suspension", response_model=StopOut)
+def set_suspension(stop_id: int, body: SuspensionUpdate, db: Session = Depends(get_db)):
+    stop = db.get(SubscriberStop, stop_id)
+    if not stop:
+        raise HTTPException(404, "站点不存在")
+    stop.suspended = body.suspended
+    db.commit()
+    db.refresh(stop)
+    return stop
+
+
+def _suspended_stop_ids(db: Session) -> set[int]:
+    return set(db.scalars(select(SubscriberStop.id).where(SubscriberStop.suspended.is_(True))).all())
+
+
 @api_router.post("/pack", response_model=list[BagOut])
 def pack(body: PackRequest, db: Session = Depends(get_db)):
     route = db.get(DeliveryRoute, body.route_id)
@@ -56,7 +72,7 @@ def pack(body: PackRequest, db: Session = Depends(get_db)):
         select(SubscriberStop).where(SubscriberStop.route_id == route.id).order_by(SubscriberStop.seq)
     ).all()
     items = [
-        StopItem(s.id, s.seq, s.weight_kg, s.volume_l, s.name) for s in stops
+        StopItem(s.id, s.seq, s.weight_kg, s.volume_l, s.name, s.suspended) for s in stops
     ]
     result = pack_route(items, route.max_weight_kg, route.max_volume_l)
     out_bags: list[PackBag] = []
@@ -113,6 +129,7 @@ def pack(body: PackRequest, db: Session = Depends(get_db)):
 
 @api_router.get("/bags", response_model=list[BagOut])
 def bags(db: Session = Depends(get_db)):
+    suspended_ids = _suspended_stop_ids(db)
     rows = db.scalars(select(PackBag).order_by(PackBag.route_id, PackBag.bag_index)).all()
     out = []
     for b in rows:
@@ -132,6 +149,7 @@ def bags(db: Session = Depends(get_db)):
                         volume_l=i.volume_l,
                     )
                     for i in items
+                    if i.stop_id not in suspended_ids
                 ],
             )
         )
@@ -140,7 +158,9 @@ def bags(db: Session = Depends(get_db)):
 
 @api_router.get("/rejects", response_model=list[RejectOut])
 def rejects(db: Session = Depends(get_db)):
-    return db.scalars(select(RejectRecord).order_by(RejectRecord.id.desc())).all()
+    suspended_ids = _suspended_stop_ids(db)
+    rows = db.scalars(select(RejectRecord).order_by(RejectRecord.id.desc())).all()
+    return [r for r in rows if r.stop_id not in suspended_ids]
 
 
 @api_router.get("/weights", response_model=list[WeightOut])

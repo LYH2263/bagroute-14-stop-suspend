@@ -1,4 +1,8 @@
-"""Route-order bag packing with weight + volume caps; reject when exceed."""
+"""Route-order bag packing with weight + volume caps; reject when exceed.
+
+Suspended stops (停投) are skipped entirely: they neither enter a bag nor
+produce a reject record.
+"""
 
 from __future__ import annotations
 
@@ -12,6 +16,7 @@ class StopItem:
     weight_kg: float
     volume_l: float
     label: str = ""
+    suspended: bool = False
 
 
 @dataclass
@@ -46,6 +51,9 @@ def pack_route(
     current: Bag | None = None
 
     for item in ordered:
+        if item.suspended:
+            # 停投站不参与装袋：不入袋，也不写入拒收
+            continue
         if item.weight_kg > max_weight or item.volume_l > max_volume:
             reason = []
             if item.weight_kg > max_weight:

@@ -243,6 +243,37 @@ button {
   background: transparent;
 }
 .stop-chip .seq { color: var(--route-leaf); font-family: "IBM Plex Mono", monospace; font-size: .8rem; }
+
+/* 停投标记：站点条 + 珠串共用 */
+.stop-chip--suspended { border-left-color: var(--reject); opacity: .6; }
+.stop-chip--suspended strong { text-decoration: line-through; }
+.stop-badge {
+  align-self: flex-start;
+  font-size: .68rem;
+  padding: .08rem .45rem;
+  border-radius: 999px;
+  background: var(--reject);
+  color: #fff;
+  font-weight: 700;
+}
+.chip-toggle {
+  align-self: flex-start;
+  background: transparent;
+  color: var(--route-muted);
+  border: 1px solid var(--line);
+  font-size: .72rem;
+  font-weight: 400;
+  padding: .2rem .5rem;
+}
+.chip-toggle:hover { color: var(--text); border-color: var(--route-muted); }
+.stop-bead--suspended .stop-bead-dot {
+  background: var(--reject);
+  box-shadow: 0 0 0 2px #5a2f22;
+}
+.stop-bead--suspended .stop-bead-card { opacity: .55; }
+.stop-bead--suspended strong { text-decoration: line-through; }
+.stop-bead-card .stop-badge { align-self: center; }
+.hint { color: var(--route-muted); font-size: .82rem; margin: -.35rem 0 .85rem; }
 .bag-row { display: flex; gap: 6px; flex-wrap: wrap; margin: .5rem 0 1rem; }
 .bag-block {
   background: var(--bag); color: white; border-radius: 4px;

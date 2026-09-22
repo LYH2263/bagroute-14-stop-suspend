@@ -11,7 +11,7 @@ const stripLinks = [
   ["/weights", "袋重"],
 ];
 
-type Stop = { id: number; route_id: number; seq: number; name: string; weight_kg: number; volume_l: number };
+type Stop = { id: number; route_id: number; seq: number; name: string; weight_kg: number; volume_l: number; suspended: boolean };
 type Route = { id: number; name: string };
 type Weight = {
   bag_id: number;
@@ -94,7 +94,7 @@ export default function Layout() {
             <div className="stop-timeline-empty">选择路线后显示站点珠串</div>
           )}
           {stops.map((s, i) => (
-            <div key={s.id} className="stop-bead" style={{ zIndex: stops.length - i }}>
+            <div key={s.id} className={`stop-bead${s.suspended ? " stop-bead--suspended" : ""}`} style={{ zIndex: stops.length - i }}>
               <div className="stop-bead-dot" />
               <div className="stop-bead-card">
                 <span className="stop-bead-seq">#{s.seq}</span>
@@ -102,6 +102,7 @@ export default function Layout() {
                 <span className="mono">
                   {s.weight_kg}kg · {s.volume_l}L
                 </span>
+                {s.suspended && <span className="stop-badge">停投</span>}
               </div>
             </div>
           ))}
