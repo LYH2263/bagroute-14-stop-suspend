@@ -243,6 +243,42 @@ button {
   background: transparent;
 }
 .stop-chip .seq { color: var(--route-leaf); font-family: "IBM Plex Mono", monospace; font-size: .8rem; }
+
+/* 停投标记：珠串与站点列表共用 */
+.hint { color: var(--route-muted); font-size: .8rem; }
+.stop-chip--suspended { border-left-color: var(--reject); opacity: .6; }
+.stop-chip--suspended strong { text-decoration: line-through; }
+.suspend-badge {
+  align-self: flex-start;
+  font-size: .68rem;
+  color: #ffb49a;
+  border: 1px solid var(--reject);
+  border-radius: 999px;
+  padding: .05rem .45rem;
+}
+.chip-toggle {
+  margin-top: .25rem;
+  align-self: flex-start;
+  background: transparent;
+  color: var(--route-leaf);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: .2rem .55rem;
+  font-size: .72rem;
+  font-weight: 400;
+}
+.chip-toggle:hover { border-color: var(--route-leaf); }
+.stop-bead--suspended .stop-bead-dot { background: var(--reject); box-shadow: 0 0 0 2px #5a2f22; }
+.stop-bead--suspended .stop-bead-card { opacity: .55; }
+.stop-bead--suspended .stop-bead-card strong { text-decoration: line-through; }
+.stop-bead-flag {
+  align-self: center;
+  font-size: .65rem;
+  color: #ffb49a;
+  border: 1px solid var(--reject);
+  border-radius: 999px;
+  padding: 0 .4rem;
+}
 .bag-row { display: flex; gap: 6px; flex-wrap: wrap; margin: .5rem 0 1rem; }
 .bag-block {
   background: var(--bag); color: white; border-radius: 4px;

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -23,6 +23,7 @@ class SubscriberStop(Base):
     name: Mapped[str] = mapped_column(String(80))
     weight_kg: Mapped[float] = mapped_column(Float)
     volume_l: Mapped[float] = mapped_column(Float)
+    is_suspended: Mapped[bool] = mapped_column(Boolean, default=False)
     route: Mapped[DeliveryRoute] = relationship(back_populates="stops")
 
 

@@ -12,6 +12,7 @@ class StopItem:
     weight_kg: float
     volume_l: float
     label: str = ""
+    suspended: bool = False
 
 
 @dataclass
@@ -46,6 +47,9 @@ def pack_route(
     current: Bag | None = None
 
     for item in ordered:
+        if item.suspended:
+            # 停投站点不参与装袋：既不进入任何袋，也不写入拒收
+            continue
         if item.weight_kg > max_weight or item.volume_l > max_volume:
             reason = []
             if item.weight_kg > max_weight:

@@ -17,7 +17,12 @@ class StopOut(BaseModel):
     name: str
     weight_kg: float
     volume_l: float
+    is_suspended: bool
     model_config = {"from_attributes": True}
+
+
+class StopSuspendIn(BaseModel):
+    is_suspended: bool
 
 
 class BagItemOut(BaseModel):

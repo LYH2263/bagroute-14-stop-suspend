@@ -11,6 +11,7 @@ from app.schemas.schemas import (
     RejectOut,
     RouteOut,
     StopOut,
+    StopSuspendIn,
     WeightOut,
 )
 from app.services.pack_engine import StopItem, pack_route
@@ -36,6 +37,17 @@ def stops(route_id: int | None = None, db: Session = Depends(get_db)):
     return db.scalars(q).all()
 
 
+@api_router.patch("/stops/{stop_id}", response_model=StopOut)
+def set_stop_suspension(stop_id: int, body: StopSuspendIn, db: Session = Depends(get_db)):
+    stop = db.get(SubscriberStop, stop_id)
+    if not stop:
+        raise HTTPException(404, "订户点不存在")
+    stop.is_suspended = body.is_suspended
+    db.commit()
+    db.refresh(stop)
+    return stop
+
+
 @api_router.post("/pack", response_model=list[BagOut])
 def pack(body: PackRequest, db: Session = Depends(get_db)):
     route = db.get(DeliveryRoute, body.route_id)
@@ -56,7 +68,8 @@ def pack(body: PackRequest, db: Session = Depends(get_db)):
         select(SubscriberStop).where(SubscriberStop.route_id == route.id).order_by(SubscriberStop.seq)
     ).all()
     items = [
-        StopItem(s.id, s.seq, s.weight_kg, s.volume_l, s.name) for s in stops
+        StopItem(s.id, s.seq, s.weight_kg, s.volume_l, s.name, suspended=s.is_suspended)
+        for s in stops
     ]
     result = pack_route(items, route.max_weight_kg, route.max_volume_l)
     out_bags: list[PackBag] = []
